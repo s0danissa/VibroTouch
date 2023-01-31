@@ -1,4 +1,4 @@
-# VibroTouch GUI
+# VibroTouch GUI 1.0 [Teensy]
 - Requirements:
 - - ```ROS Kinetic```
 - - ```Python 2.7```
