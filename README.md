@@ -1,7 +1,7 @@
 # VibroTouch GUI
 ### Overview
-- [0. Fast Start + Command List](https://github.com/s0danissa/VibroTouch/edit/main/README.md#0-fast-start-command-list)
-- [1. General package description](https://github.com/s0danissa/VibroTouch#1-general-description)
+- [0. Fast Start + Command List](https://github.com/s0danissa/VibroTouch#0-fast-start--command-list)
+- [1. General package description](https://github.com/s0danissa/VibroTouch#1-general-package-description)
 - [2. ROS Node description](https://github.com/s0danissa/VibroTouch#2-ros-node-description)
 ## 0. Fast Start + Command List
 1) Download all of the foulders present in the repository (*except for 'Teensy (.ino) files'*) into the ```$your_catkin_workspace$/src``` foulder
