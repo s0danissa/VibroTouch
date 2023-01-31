@@ -11,7 +11,7 @@
 2) ```$ catkin build```
 3) Load .ino file to Teensy using Arduino IDE (*the file is in 'Teensy (.ino) files'*)
 4) Use below commands to launch and interact with the package nodes:
-- ```source /opt/ros/$your_distro$/setup.bash``` - ROS distro sourcing
+- $ ```source /opt/ros/$your_distro$/setup.bash``` - ROS distro sourcing
 - ```. ~/$your_catkin_workspace$/devel/setup.bash``` - Catkin workspace sourcing
 - ```roscore``` - Roscore launch
 - ```roslaunch schunk_ezn64 ezn64_usb_control.launch``` - Schunk EGN100 main control launcher 
