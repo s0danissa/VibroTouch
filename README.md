@@ -16,7 +16,12 @@
 *Some notes regarding the figure above:*<br>
 *imp_fft.. in the center is the rt_gui.py node*<br>
 *rectangles - topics, circles - nodes*
-### 1.3 ROSTOPIC list:
+### 1.3 Included ROS Packages:
+- **vibroTouch** - original package with C++ nodes and a Python GUI
+- **wittenstein, wittenstein_msgs** - supplementary packages for interfacing with the Wittenstein F/T sensor via ROS
+- **schunk_exn64** - package for interfacing with Schunk EGN100 via ROS servies (modified to include custom /float_grip gripper position publishing topic and /setData position and velocity listening from the external nodes topic)
+- **rosserial** - package for interfacing Teensy/Arduino with ROS via serial USb bus 
+### 1.4 ROSTOPIC list:
 /chatter - data received via rosserial from the teensy<br>
 /exp_status - connects the main python node (GUI) and force_control.cpp and alerts on the status of the current experiment<br>
 /float_grip - publishes gripper data for recording from the original Schunk topic<br>
