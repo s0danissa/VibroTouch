@@ -29,11 +29,12 @@
 For the description below the following markers are implemented for easied navigation and inderstanding:
 - ![#f03c15](https://via.placeholder.com/15/f03c15/000000?text=+) `data being sent externally FROM the corresponding node`
 - ![#c5f015](https://via.placeholder.com/15/c5f015/000000?text=+) `data being received TO the corresponding node`
-### 2.1 vibroTouch -> force_pub (C++ file)
+### 2.1 force_pub (force_pub.cpp)
 Republishes the data from wittenstein_topic in the form of a regular Float32 array instead of a custom Wittenstein message (because wittenstein packages are written in C++ and some of the nodes in the active_glove package are written in python and require data from wittenstein too).
 - subscribes to **witenstein_topic** and get force data from here
 - publishes to **forceFloat32** in the form of floats
-### 2.2 vibroTouch -> force_control (C++ file)
+### 2.2 force_control (force_control.cpp)
+#### GLOBAL VARIABLES DICTIONARY
 - ![#c5f015](https://via.placeholder.com/15/c5f015/000000?text=+) **wittForceZ** - variable storing data from the wittenstein_topic on the Z-axis force
 - **forceGoal** - the desired force that is received from the “send_force” topic (positive float - desired force, -10.0 - release signal, -5.0 - launches experimental procedure (! DEPRECATED !)
 - **oldPosition** - a variable storing the gripper position value from the previous spin (loop)
@@ -48,3 +49,47 @@ Republishes the data from wittenstein_topic in the form of a regular Float32 arr
 - **expStatus** - a variable used in the custom experimental procedure (used for exp_type = 1 in rt_gui.py), takes in the values 0 - the start of the experiment/nothing to do yet,1 - squeezing until 5N,2 - 5N reached and going back
 - **gripperCount** - the variable that is controlling the state of the “touch” experiment. Takes in the values of 0 - experimental procedure has not been started yet, 1-110 - experimental procedure has been started (the touch experiment moves the gripper from 20.0 to 18.9 mm)
 - **gripperRelease** - a boolean variable indicating the current gripper movement direction in the “touch” experiment (0 - squeezing in, 1 - releasing)
+#### ROS MESSAGE VARIABLES
+- ![#f03c15](https://via.placeholder.com/15/f03c15/000000?text=+) **gripMessage** (Float32MultiArray) - a message that is being sent to the gripper from position control (array of 2 floats, where [0] - speed, [1] - position)
+- ![#f03c15](https://via.placeholder.com/15/f03c15/000000?text=+) **expStatusData** (Int16MultiArray) -  an array consisting of one int16 that communicates with the exp_status topic (1 - experiment finished, 2 - experiment started)
+#### ALGORITHM DESCRIPTION
+This node is responsible for executing the experimental procedures. It sends commands to Schunk EGN100 topics to execute certain motions corresponding to the data received from Wittenstein. The main code is divided into three parts corresponding to three pre-defined procedures (all measures are written in mm or mm/s):
+- **Procedure 1: One-time custom grip force control** (received force value is positive) - manual grip force control
+- - takes time to achieve the desired force is a 0.1 accuracy
+- **Procedure 2: Release the grip** (received force value is -10.0) - release/open position
+- - fast release of the gripper
+- **Procedure 3: Experimental protocol** (received force value is -5.0) - determining vibration feedback of different structures
+- - moves until the contact of 0.5 N is established (at speed 2) and slows down after
+- - slowly moves to 2N (at 0.5 speed)
+- - once the grip of 2N is achieved the experiment starts
+- - slowly goes to 5N (at 0.25 speed)
+- - once 5N is reached goes back to 2N slowly (at 0.25 speed)
+- - 2N is reached and the experiment is finished
+- **Procedure 4: Contact detection experiment** (received force value is -15.0) - manual dimension grip
+- - slowly moves from 20.0 to 18.9 with a step of 0.01 and a speed of 5
+- - then goes back to 18.9 with the same step and speed
+### 2.3 rt_gui.py
+#### GLOBAL VARIABLES DICTIONARY
+- **exp4CounterCSV** - a counter used to update the names of the .csv files during Procedure 4 and to track when 10 experiments are conducted
+fftRecordingFlag** - a flag value that is used to indicate when fft recording is initiated (0 - recording is not initiated or has been stopped, 1 - recording is initiated, .csv file is open)
+- **exp_start** - a flag that indicates the start of an experimental procedure (that is not embedded in the force_control.cpp - “Classification procedure”) and its current state (when the “Classify” button is pressed - 1, 2 - reaching for the grip of 2N, 3 - grip has been achieved and force is going to 5N, 4 - the previous goal is achieved and going to 4N, 5 - 4N was achieved going to 6N, 0 - experimental procedure has ended or has not been started)
+- **expProcedureState** - a flag that indicates the progress of an experimental procedure (both Procedure 3 or Procedure 4), where 0 - no experiment is in progress, 1 - experimental procedure has started, 2 - the experimental procedure is in progress
+- **exp3CounterCSV** - a counter used to update the names of the .csv files during Procedure 3 and to track when N_of_exp experiments are conducted
+- **expType** - a variable used to indicate the type of an experimental procedure performed (1 - Procedure 3, 2 - Procedure 4)
+- ![#c5f015](https://via.placeholder.com/15/c5f015/000000?text=+) **forceControlCallbackFlag** - a flag that indicates the state received from the exp_status topic (0 - the experiment has not been started, 1 - the goal has been achieved and the experiment is finished, 2 - the experiment is in progress, on its way to the goal)
+- ![#c5f015](https://via.placeholder.com/15/c5f015/000000?text=+) **gripperPosition** - the data on gripper position collected from the “float_grip” topic, used for data recording
+- **forceTrackbarPos** - the raw value received from the trackbar callback (0 to 500)
+- ![#f03c15](https://via.placeholder.com/15/f03c15/000000?text=+) **forceControlPub** - a publisher that communicates with the force_control.cpp and sends desired force values and commands
+- ![#c5f015](https://via.placeholder.com/15/c5f015/000000?text=+) **wittForceY** - force applied along Y-axis received from the Wittenstein F/T sensor through the force_pub.cpp (required for human touch experiment since the force is applied vertically on the object)
+- ![#c5f015](https://via.placeholder.com/15/c5f015/000000?text=+) **wittForceZ** - force applied along Z-axis received from the Wittenstein F/T sensor through the force_pub.cpp (required for data collection and grip control in experimental procedures 3 and 4)
+- **bufferCounter** - counter to update fft buffer from “chatter” topic (accelerometer data)
+- ![#c5f015](https://via.placeholder.com/15/c5f015/000000?text=+) **accelerometerData** - sample buffer of 2500 samples of data from the accelerometer
+- **accDataSize** - the size of the accelerometerData array (default value is 2500)
+- **bufferUpdateCounter** - a value that signals when the temporary buffer (5) is sufficient enough to compute new fft and shift the spectrogram
+- **bufferUpdateThr** - a threshold variable for bufferUpdateCounter
+- **initializerCounter** - a variable that keeps track of when the initialization has been finished (since fft needs to collect a first bag of samples before plotting normal data)
+- **initializerThr** - a threshold value for the initializerValue variable (5 since one sample comes from the “chatter” topic)
+- **localMaxArray** - an array containing the peak values of the corresponding frequency bandwidth regions
+- **spectrIntensity** - the value that controls the max intensity value of the spectrogram
+- **spectrSave** - a variable that is used to signal the save of a current spectrogram
+- **fftSave** - a variable that is used to signal the save of one current spectrum (one frequency domain sample)
