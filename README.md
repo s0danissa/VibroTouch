@@ -1,9 +1,12 @@
 # VibroTouch GUI
 ### Overview
-- [0. Fast start command list](https://github.com/s0danissa/VibroTouch/edit/main/README.md#0-fast-start-command-list)
+- [0. Fast Start + Command List](https://github.com/s0danissa/VibroTouch/edit/main/README.md#0-fast-start-command-list)
 - [1. General package description](https://github.com/s0danissa/VibroTouch#1-general-description)
 - [2. ROS Node description](https://github.com/s0danissa/VibroTouch#2-ros-node-description)
-## 0. Fast start command list
+## 0. Fast Start + Command List
+1) Download all of the foulders present in the repository (*except for 'Teensy (.ino) files'*) into the ```$your_catkin_workspace$/src``` foulder
+2) ```$ catkin build```
+3) Use below commands to launch and interact with the package nodes:
 - ```source /opt/ros/$your_distro$/setup.bash``` - ROS distro sourcing
 - ```. ~/$your_catkin_workspace$/devel/setup.bash``` - Catkin workspace sourcing
 - ```roscore``` - Roscore launch
