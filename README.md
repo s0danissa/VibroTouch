@@ -1,5 +1,21 @@
 # VibroTouch GUI
-## 1. General description
+### Overview
+- [0. Fast start command list](https://github.com/s0danissa/VibroTouch/edit/main/README.md#0-fast-start-command-list)
+- [1. General package description](https://github.com/s0danissa/VibroTouch#1-general-description)
+- [2. ROS Node description](https://github.com/s0danissa/VibroTouch#2-ros-node-description)
+## 0. Fast start command list
+- ```source /opt/ros/$your_distro$/setup.bash``` - ROS distro sourcing
+- ```. ~/$your_catkin_workspace$/devel/setup.bash``` - Catkin workspace sourcing
+- ```roscore``` - Roscore launch
+- ```roslaunch schunk_ezn64 ezn64_usb_control.launch``` - Schunk EGN100 main control launcher 
+- ```rosservice call /schunk_ezn64/reference``` - bringing Schunk EGN100 to the 'reference/zero' position, required for initial callibration after each start-up of the gripper
+- ```rosservice call /schunk_ezn64/set_position $velocity$ $position$``` - ros service used for fast interfacing with the Schunk gripper, just set required position and velocity (EX: ```rosservice call /schunk_ezn64/set_position 14.49 5.0```)
+- ```rosrun rosserial_python serial_node.py $port$ _baud:=$baud_rate$``` - launches ros-serial node that recieves data from Teensy through the serial bus (EX: ```rosrun rosserial_python serial_node.py /dev/ttyACM1 _baud:=115200```)
+- ```rosrun wittenstein wittenstein_main``` - launches the main Wittenstein communication node
+- ```rosrun vibro_touch force_pub``` - launches **force_pub** node ([2.1 force_pub (force_pub.cpp)](https://github.com/s0danissa/VibroTouch#21-force_pub-force_pubcpp))
+- ```rosrun vibro_touch force_control``` - launches **force_control** node ([2.2 force_control (force_control.cpp)](https://github.com/s0danissa/VibroTouch#22-force_control-force_controlcpp))
+- ```rosrun active_glove rt_gui.py``` - launches the main Python GUI **rt_gui.py** ([2.3 rt_gui.py](https://github.com/s0danissa/VibroTouch#23-rt_guipy))
+## 1. General package description
 ### 1.1 Hardware:
 **VibroTouch ROS package** - creates a network of several devices connected together to perform vibrational frequency analysis of a variety of objects. The system includes severral peripherals:
 1) **Teensy 3.2** - analog data acquisition from accelerometers and transmission to PC at 500Hz (5 samples at a time => enhanced data transmission frequency 2500 samples per second => 2.5 kHz)
