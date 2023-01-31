@@ -1,4 +1,7 @@
 # VibroTouch GUI
+- Requirements:
+- - ```ROS Kinetic```
+- - ```Python 2.7```
 ### Overview
 - [0. Fast Start + Command List](https://github.com/s0danissa/VibroTouch#0-fast-start--command-list)
 - [1. General package description](https://github.com/s0danissa/VibroTouch#1-general-package-description)
