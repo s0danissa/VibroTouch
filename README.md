@@ -1,4 +1,4 @@
-# VibroTouch
+# VibroTouch GUI
 ## 1. General description
 ### 1.1 Hardware:
 **VibroTouch ROS package** - creates a network of several devices connected together to perform vibrational frequency analysis of a variety of objects. The system includes severral peripherals:
