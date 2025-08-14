@@ -15,6 +15,7 @@ import csv
 import datetime
 import time
 
+from std_msgs.msg import Int16
 from std_msgs.msg import Int16MultiArray
 from std_msgs.msg import Float32
 from std_msgs.msg import Float32MultiArray
@@ -22,6 +23,8 @@ from std_msgs.msg import Float32MultiArray
 # ------------------------------------------------------------------------------------------------------------------------------------
 # 							GLOBAL VARIABLES
 # ------------------------------------------------------------------------------------------------------------------------------------
+
+FS = 8000
 
 global exp4CounterCSV
 exp4CounterCSV = 0
@@ -91,11 +94,12 @@ def peaks_n(arr_n):
 def max_hz(a):
 	global localMaxArray
 	localMaxArray = []
-	localMaxArray.append(np.where(a==max(a[20:250]))[0][0])
-	localMaxArray.append(np.where(a==max(a[250:500]))[0][0])
-	localMaxArray.append(np.where(a==max(a[500:750]))[0][0])
-	localMaxArray.append(np.where(a==max(a[750:1000]))[0][0])
-	localMaxArray.append(np.where(a==max(a[1000:1250]))[0][0])
+	interval = FS//10
+	localMaxArray.append(np.where(a==max(a[20:interval]))[0][0])
+	localMaxArray.append(np.where(a==max(a[interval:2*interval]))[0][0])
+	localMaxArray.append(np.where(a==max(a[2*interval:3*interval]))[0][0])
+	localMaxArray.append(np.where(a==max(a[3*interval:4*interval]))[0][0])
+	localMaxArray.append(np.where(a==max(a[4*interval:FS//2]))[0][0])
 	out_ar = np.array(localMaxArray)
 	localMaxArray = []
 	return out_ar
@@ -328,14 +332,15 @@ def fft_main():
 	
 	rospy.init_node('imp_fft', anonymous = True) # added
 
-	rospy.Subscriber("chatter", Int16MultiArray, callback) # added
+	rospy.Subscriber("stmDataL", Int16, callback) # added
+	rospy.Subscriber("stmDataR", Int16, callback) # added
 	rospy.Subscriber("forceFloat32", Float32MultiArray, see_callback) # added
 	rospy.Subscriber("exp_status", Int16MultiArray, exp_callback) # added
 	rospy.Subscriber("float_grip", Float32MultiArray, grip_callback) # added
 
 	forceControlPub = rospy.Publisher("send_force", Float32, queue_size = 10) # added
 
-	rate = rospy.Rate(500)
+	rate = rospy.Rate(8000)
 
 	imp_data = np.array([])
 	ros_work = False
@@ -517,6 +522,7 @@ def fft_main():
 				fftSave = 0
 				rospy.loginfo("RECORDING STOPPED")		
 
+            # Putting five peaks on the spectrogram display
 			if hz_max_c > 10:
 				for i in range(0,len(out_maxx)):
 					rotated = cv2.putText(rotated, str(out_maxx[i])+' Hz', (100,1250-out_maxx[i]), font, fontScale, fontColor, thickness, cv2.LINE_AA)
